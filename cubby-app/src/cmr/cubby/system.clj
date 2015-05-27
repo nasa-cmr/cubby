@@ -13,17 +13,6 @@
             [cmr.cubby.data.elastic-cache-store :as elastic-cache-store]
             [cmr.transmit.config :as transmit-config]))
 
-(defconfig cubby-port
-  "Port cubby application listens on."
-  {:default 3007 :type Long})
-
-(defconfig cubby-relative-root-url
-  "Defines a root path that will appear on all requests sent to this application. For
-  example if the relative-root-url is '/cmr-app' and the path for a URL is '/foo' then
-  the full url would be http://host:port/cmr-app/foo. This should be set when this
-  application is deployed in an environment where it is accessed through a VIP."
-  {:default ""})
-
 (defconfig cubby-nrepl-port
   "Port to listen for nREPL connections"
   {:default nil
@@ -38,9 +27,9 @@
   []
   (let [sys {:log (log/create-logger)
              :db (elastic-cache-store/create-elastic-cache-store (es-config/elastic-config))
-             :web (web/create-web-server (cubby-port) routes/make-api)
+             :web (web/create-web-server (transmit-config/cubby-port) routes/make-api)
              :nrepl (nrepl/create-nrepl-if-configured (cubby-nrepl-port))
-             :relative-root-url (cubby-relative-root-url)
+             :relative-root-url (transmit-config/cubby-relative-root-url)
              :zipkin (context/zipkin-config "cubby" false)}]
     (transmit-config/system-with-connections sys [:echo-rest])))
 
